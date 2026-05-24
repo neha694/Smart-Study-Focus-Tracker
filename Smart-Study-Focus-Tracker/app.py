@@ -94,14 +94,14 @@ study_time = st.sidebar.slider(
 # BUTTON
 if st.button("🚀 Start Study Session"):
 
-    st.info("Tracking Started...")
-
     records = []
+
+    st.info("Tracking Started...")
 
     progress = st.progress(0)
 
     total_seconds = study_time * 60
-
+    
     timer_placeholder = st.empty()
 
     for i in range(total_seconds):
