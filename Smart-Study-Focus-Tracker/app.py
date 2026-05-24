@@ -106,7 +106,7 @@ if st.button("🚀 Start Study Session"):
 
     for i in range(total_seconds):
 
-        active_app = st.selectbox(
+       active_app = st.selectbox(
     "Select Current Activity",
     [
         "Studying",
@@ -115,47 +115,47 @@ if st.button("🚀 Start Study Session"):
         "YouTube",
         "Instagram",
         "Netflix"
-    ]
+    ],
+    key=f"activity_{i}"
 )
 
-        current_time = datetime.now()
-
-        records.append({
+current_time = datetime.now()
+records.append({
             "Time": current_time,
             "Active App": active_app
         })
 
-        mins, secs = divmod(
+mins, secs = divmod(
             total_seconds - i,
             60
         )
 
-        timer_placeholder.info(
+timer_placeholder.info(
             f"⏳ Time Left: {mins:02d}:{secs:02d}"
         )
 
-        progress.progress(
+progress.progress(
             (i + 1) / total_seconds
         )
 
-        time.sleep(1)
+time.sleep(1)
 
     # DATAFRAME
-    df = pd.DataFrame(records)
+df = pd.DataFrame(records)
 
     # SAVE CSV
-    df.to_csv(
+df.to_csv(
         "study_data.csv",
         index=False
     )
 
     # ANALYSIS
-    focus_count = 0
-    distraction_count = 0
+focus_count = 0
+distraction_count = 0
 
-    categories = []
+categories = []
 
-    for app in df["Active App"]:
+for app in df["Active App"]:
 
         app_lower = str(app).lower()
 
@@ -179,54 +179,53 @@ if st.button("🚀 Start Study Session"):
 
             focus_count += 1
 
-    df["Category"] = categories
+df["Category"] = categories
 
     # SCORES
-    focus_score = (
+focus_score = (
         focus_count / len(df)
     ) * 100
 
-    distraction_score = (
+distraction_score = (
         distraction_count / len(df)
     ) * 100
 
     # TOP DISTRACTING APP
-    distracting_apps = df[
+distracting_apps = df[
         df["Category"] == "Distracting"
     ]
 
-    if not distracting_apps.empty:
+if not distracting_apps.empty:
 
         top_distracting = distracting_apps[
             "Active App"
         ].value_counts().idxmax()
 
-    else:
+else:
 
         top_distracting = "None"
 
-    st.success(
+st.success(
         "✅ Session Completed"
     )
 
     # METRICS
-    col1, col2, col3 = st.columns(3)
+col1, col2, col3 = st.columns(3)
 
-    with col1:
+with col1:
 
         st.metric(
             "🎯 Focus Score",
             f"{focus_score:.2f}%"
         )
 
-    with col2:
+with col2:
 
         st.metric(
             "⚠️ Distraction Score",
             f"{distraction_score:.2f}%"
         )
-
-    with col3:
+with col3:
 
         st.metric(
             "📱 Apps Tracked",
@@ -234,92 +233,92 @@ if st.button("🚀 Start Study Session"):
         )
 
     # PRODUCTIVITY STATUS
-    if focus_score >= 80:
+if focus_score >= 80:
 
         st.success(
             "🔥 HIGH PRODUCTIVITY SESSION"
         )
 
-    elif focus_score >= 50:
+elif focus_score >= 50:
 
         st.warning(
             "⚡ MODERATE PRODUCTIVITY SESSION"
         )
 
-    else:
+else:
 
         st.error(
             "🚨 LOW PRODUCTIVITY SESSION"
         )
 
     # DISTRACTING APP
-    st.info(
+st.info(
         f"📌 Most Distracting App: {top_distracting}"
     )
 
     # AI SUGGESTIONS
-    st.subheader(
+st.subheader(
         "🤖 AI Suggestions"
     )
 
-    if distraction_score > 50:
+if distraction_score > 50:
 
         st.error(
             "Too many distractions detected. Avoid social media while studying."
         )
 
-    elif focus_score > 70:
+elif focus_score > 70:
 
         st.success(
             "Excellent productivity session. Keep it up!"
         )
 
-    else:
+else:
 
         st.warning(
             "Average productivity detected. Improve focus."
         )
 
     # PIE CHART
-    st.subheader(
+st.subheader(
         "📊 Productivity Distribution"
     )
 
-    pie = px.pie(
+pie = px.pie(
         df,
         names="Category"
     )
 
-    pie.update_traces(
+pie.update_traces(
         textinfo="percent+label"
     )
 
-    pie.update_layout(
+pie.update_layout(
         height=500
     )
 
-    st.plotly_chart(
+st.plotly_chart(
         pie,
         use_container_width=True
     )
 
     # SESSION DATA
-    st.subheader(
+st.subheader(
         "📄 Session Data"
     )
 
-    st.dataframe(df)
+st.dataframe(df)
 
     # BAR CHART
-    st.subheader(
+st.subheader(
         "📊 Application Usage"
     )
 
-    chart_data = df[
+chart_data = df[
         "Active App"
     ].value_counts()
 
-    st.bar_chart(
+st.bar_chart(
         chart_data,
         height=400
     )
