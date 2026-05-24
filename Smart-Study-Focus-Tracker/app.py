@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 import time
 from datetime import datetime
-import pygetwindow as gw
 import plotly.express as px
 
 # PAGE CONFIG
@@ -90,20 +89,7 @@ study_time = st.sidebar.slider(
 )
 
 # FUNCTION
-def get_active_window():
 
-    try:
-
-        window = gw.getActiveWindow()
-
-        if window:
-            return window.title
-
-        return "Unknown"
-
-    except:
-
-        return "Unknown"
 
 # BUTTON
 if st.button("🚀 Start Study Session"):
@@ -120,7 +106,17 @@ if st.button("🚀 Start Study Session"):
 
     for i in range(total_seconds):
 
-        active_app = get_active_window()
+        active_app = st.selectbox(
+    "Select Current Activity",
+    [
+        "Studying",
+        "Coding",
+        "Reading PDF",
+        "YouTube",
+        "Instagram",
+        "Netflix"
+    ]
+)
 
         current_time = datetime.now()
 
