@@ -55,13 +55,13 @@ section[data-testid="stSidebar"] {
 st.sidebar.title("📊 Dashboard")
 
 st.sidebar.info("""
-Smart productivity tracker for students.
+AI-powered productivity tracker.
 
-Built using:
-- Python
-- Streamlit
-- AI Analytics
-- Data Visualization
+Features:
+- Focus Analysis
+- Productivity Tracking
+- Distraction Detection
+- Analytics Dashboard
 """)
 
 # TITLE
@@ -69,45 +69,19 @@ st.title("📚 Smart Study Focus Tracker")
 
 st.markdown("""
 ### 🚀 AI-Powered Productivity Monitoring System
-
-Track:
-- Active Applications
-- Focus Level
-- Distractions
-- Productivity Trends
-- Smart Analytics
 """)
 
 # TIMER
-st.sidebar.subheader("⏳ Study Timer")
-
 study_time = st.sidebar.slider(
-    "Select Study Minutes",
+    "⏳ Select Study Minutes",
     1,
-    60,
+    10,
     1
 )
 
-# FUNCTION
-
-
-# BUTTON
-if st.button("🚀 Start Study Session"):
-
-    records = []
-
-    st.info("Tracking Started...")
-
-    progress = st.progress(0)
-
-    total_seconds = study_time * 60
-    
-    timer_placeholder = st.empty()
-
-    for i in range(total_seconds):
-
-       active_app = st.selectbox(
-    "Select Current Activity",
+# USER ACTIVITY
+selected_activity = st.selectbox(
+    "📌 Select Your Current Activity",
     [
         "Studying",
         "Coding",
@@ -115,47 +89,62 @@ if st.button("🚀 Start Study Session"):
         "YouTube",
         "Instagram",
         "Netflix"
-    ],
-    key=f"activity_{i}"
+    ]
 )
 
-current_time = datetime.now()
-records.append({
+# START BUTTON
+if st.button("🚀 Start Study Session"):
+
+    st.info("Tracking Started...")
+
+    records = []
+
+    progress = st.progress(0)
+
+    total_seconds = study_time * 10
+
+    timer_placeholder = st.empty()
+
+    for i in range(total_seconds):
+
+        current_time = datetime.now()
+
+        records.append({
             "Time": current_time,
-            "Active App": active_app
+            "Activity": selected_activity
         })
 
-mins, secs = divmod(
+        mins, secs = divmod(
             total_seconds - i,
             60
         )
 
-timer_placeholder.info(
+        timer_placeholder.info(
             f"⏳ Time Left: {mins:02d}:{secs:02d}"
         )
 
-progress.progress(
+        progress.progress(
             (i + 1) / total_seconds
         )
 
-time.sleep(1)
+        time.sleep(1)
 
     # DATAFRAME
-df = pd.DataFrame(records)
+    df = pd.DataFrame(records)
 
     # SAVE CSV
-df.to_csv(
+    df.to_csv(
         "study_data.csv",
         index=False
     )
 
     # ANALYSIS
-focus_count = 0
-distraction_count = 0
+    focus_count = 0
+    distraction_count = 0
 
-categories = []
+    categories = []
 
-for app in df["Active App"]:
+    for app in df["Activity"]:
 
         app_lower = str(app).lower()
 
@@ -165,160 +154,147 @@ for app in df["Active App"]:
             "netflix" in app_lower
         ):
 
-            categories.append(
-                "Distracting"
-            )
-
+            categories.append("Distracting")
             distraction_count += 1
 
         else:
 
-            categories.append(
-                "Productive"
-            )
-
+            categories.append("Productive")
             focus_count += 1
 
-df["Category"] = categories
+    df["Category"] = categories
 
     # SCORES
-focus_score = (
+    focus_score = (
         focus_count / len(df)
     ) * 100
 
-distraction_score = (
+    distraction_score = (
         distraction_count / len(df)
     ) * 100
 
     # TOP DISTRACTING APP
-distracting_apps = df[
+    distracting_apps = df[
         df["Category"] == "Distracting"
     ]
 
-if not distracting_apps.empty:
+    if not distracting_apps.empty:
 
         top_distracting = distracting_apps[
-            "Active App"
+            "Activity"
         ].value_counts().idxmax()
 
-else:
+    else:
 
         top_distracting = "None"
 
-st.success(
-        "✅ Session Completed"
-    )
+    st.success("✅ Session Completed")
 
     # METRICS
-col1, col2, col3 = st.columns(3)
+    col1, col2, col3 = st.columns(3)
 
-with col1:
+    with col1:
 
         st.metric(
             "🎯 Focus Score",
             f"{focus_score:.2f}%"
         )
 
-with col2:
+    with col2:
 
         st.metric(
             "⚠️ Distraction Score",
             f"{distraction_score:.2f}%"
         )
-with col3:
+
+    with col3:
 
         st.metric(
-            "📱 Apps Tracked",
+            "📱 Activities Tracked",
             len(df)
         )
 
     # PRODUCTIVITY STATUS
-if focus_score >= 80:
+    if focus_score >= 80:
 
         st.success(
             "🔥 HIGH PRODUCTIVITY SESSION"
         )
 
-elif focus_score >= 50:
+    elif focus_score >= 50:
 
         st.warning(
             "⚡ MODERATE PRODUCTIVITY SESSION"
         )
 
-else:
+    else:
 
         st.error(
             "🚨 LOW PRODUCTIVITY SESSION"
         )
 
-    # DISTRACTING APP
-st.info(
-        f"📌 Most Distracting App: {top_distracting}"
+    # MOST DISTRACTING
+    st.info(
+        f"📌 Most Distracting Activity: {top_distracting}"
     )
 
     # AI SUGGESTIONS
-st.subheader(
-        "🤖 AI Suggestions"
-    )
+    st.subheader("🤖 AI Suggestions")
 
-if distraction_score > 50:
+    if distraction_score > 50:
 
         st.error(
             "Too many distractions detected. Avoid social media while studying."
         )
 
-elif focus_score > 70:
+    elif focus_score > 70:
 
         st.success(
             "Excellent productivity session. Keep it up!"
         )
 
-else:
+    else:
 
         st.warning(
             "Average productivity detected. Improve focus."
         )
 
     # PIE CHART
-st.subheader(
+    st.subheader(
         "📊 Productivity Distribution"
     )
 
-pie = px.pie(
+    pie = px.pie(
         df,
         names="Category"
     )
 
-pie.update_traces(
+    pie.update_traces(
         textinfo="percent+label"
     )
 
-pie.update_layout(
+    pie.update_layout(
         height=500
     )
 
-st.plotly_chart(
+    st.plotly_chart(
         pie,
         use_container_width=True
     )
 
     # SESSION DATA
-st.subheader(
-        "📄 Session Data"
-    )
+    st.subheader("📄 Session Data")
 
-st.dataframe(df)
+    st.dataframe(df)
 
     # BAR CHART
-st.subheader(
-        "📊 Application Usage"
-    )
+    st.subheader("📊 Activity Usage")
 
-chart_data = df[
-        "Active App"
+    chart_data = df[
+        "Activity"
     ].value_counts()
 
-st.bar_chart(
+    st.bar_chart(
         chart_data,
         height=400
     )
